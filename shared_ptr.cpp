@@ -1,4 +1,13 @@
 #include <iostream>
+
+
+template <typename T, class ...Args>
+auto make_shared( Args && ...args ) -> shared_ptr<T>
+{
+    return shared_ptr<T>( new T( std::forward<Args>(args)... ) );
+}
+
+
 template <typename T>
 class shared_ptr
 {
@@ -20,3 +29,33 @@ private:
 	T *ptr_;
 	size_t *counter_;
 };
+
+
+template <typename T>
+shared_ptr<T>::shared_ptr() : ptr_(nullptr), counter_(nullptr) {}
+
+template <typename T>
+shared_ptr<T>::shared_ptr(T* ptr) : ptr_(ptr), counter_(new size_t(1)) {}
+
+template <typename T>
+shared_ptr<T>::shared_ptr(shared_ptr const& x) : ptr_(x.ptr_), counter_(x.counter_) 
+{
+	if(counter_ != nullptr) ++(*counter_);
+}
+
+template <typename T>
+shared_ptr<T>::shared_ptr(shared_ptr&& x) : ptr_(x.ptr_), counter_(x.counter_)
+{
+	x.ptr_ = nullptr;
+	x.counter_ = nullptr;
+}
+
+template <typename T>
+shared_ptr<T>::~shared_ptr()
+{
+	if (ptr_ != nullptr && counter_ != nullptr && --(*counter_) == 0)
+	{
+		delete ptr_;
+		delete counter_;
+	}
+}
