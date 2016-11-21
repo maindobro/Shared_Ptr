@@ -59,3 +59,21 @@ shared_ptr<T>::~shared_ptr()
 		delete counter_;
 	}
 }
+
+template <typename T>
+auto shared_ptr<T>::operator = (shared_ptr const& x) -> shared_ptr&
+{
+	if (this != &x)
+	{
+		(shared_ptr<T>(x)).swap(*this);
+	}
+	return *this;
+}
+
+template <typename T>
+auto shared_ptr<T>::operator = (shared_ptr&& x) -> shared_ptr&
+{
+	if (this != &x) 
+		swap(x);
+	return *this;
+}
